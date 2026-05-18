@@ -210,11 +210,21 @@
 
                 <td class="text-end pe-4">
 
-                    <button class="btn btn-sm btn-outline-primary me-1">
+                    <button 
+    class="btn btn-sm btn-outline-primary me-1"
+    onclick="editVehicle(${v.id})"
+>
+    <i class="bi bi-pencil"></i>
+</button>
                         <i class="bi bi-pencil"></i>
                     </button>
 
-                    <button class="btn btn-sm btn-outline-danger">
+                    <button 
+    class="btn btn-sm btn-outline-danger"
+    onclick="deleteVehicle(${v.id})"
+>
+    <i class="bi bi-trash"></i>
+</button>
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -227,7 +237,138 @@
         });
 
     }
+    const token = localStorage.getItem('token');
+    function editVehicle(id) {
 
+    const vehicle = vehicles.find(v => v.id === id);
+
+    if(!vehicle) return;
+
+    document.getElementById('vehicleId').value = vehicle.id;
+
+    document.getElementById('vBrand').value = vehicle.brand;
+
+    document.getElementById('vModel').value = vehicle.model;
+
+    document.getElementById('vYear').value = vehicle.year;
+
+    document.getElementById('vPrice').value = vehicle.price;
+
+    const modal = new bootstrap.Modal(
+        document.getElementById('vehicleModal')
+    );
+
+    modal.show();
+
+}
+async function saveVehicle() {
+
+    const vehicleId = document.getElementById('vehicleId').value;
+
+    const vehicleData = {
+
+        brand: document.getElementById('vBrand').value,
+        model: document.getElementById('vModel').value,
+        year: document.getElementById('vYear').value,
+        price: document.getElementById('vPrice').value,
+        stock: 10,
+        category_id: 1
+
+    };
+
+    try {
+
+        const response = await fetch(
+
+            vehicleId
+                ? `/api/vehicles/${vehicleId}`
+                : '/api/vehicles',
+
+            {
+
+                method: vehicleId ? 'PUT' : 'POST',
+
+             headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${token}`
+},
+
+                body: JSON.stringify(vehicleData)
+
+            }
+
+        );
+
+        const data = await response.json();
+
+        console.log(data);
+
+        alert(
+            vehicleId
+                ? 'Vehículo actualizado correctamente'
+                : 'Vehículo registrado correctamente'
+        );
+
+        const modal = bootstrap.Modal.getInstance(
+            document.getElementById('vehicleModal')
+        );
+
+        modal.hide();
+
+        document.getElementById('vehicleForm').reset();
+
+        document.getElementById('vehicleId').value = '';
+
+        loadVehicles();
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert('Error al guardar vehículo');
+
+    }
+
+}
+async function deleteVehicle(id) {
+
+    const confirmDelete = confirm(
+        '¿Deseas eliminar este vehículo?'
+    );
+
+    if(!confirmDelete) return;
+
+    try {
+
+        const response = await fetch(`/api/vehicles/${id}`, {
+
+            method: 'DELETE',
+
+          headers: {
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${token}`
+}
+
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        alert('Vehículo eliminado correctamente');
+
+        loadVehicles();
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert('Error al eliminar vehículo');
+
+    }
+
+}   
     document.addEventListener('DOMContentLoaded', () => {
 
         loadVehicles();

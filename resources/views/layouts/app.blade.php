@@ -81,10 +81,6 @@
                         <a class="dropdown-item text-danger" href="#" id="logoutBtn">
                             <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
                         </a>
-                        <!-- Formulario de logout nativo Laravel (Oculto) -->
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
                     </li>
                 </ul>
             </div>
@@ -110,7 +106,52 @@
     <!-- App Scripts -->
     <script src="{{ asset('assets/js/api.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
-    
+    <script>
+
+    document.getElementById('logoutBtn')
+        .addEventListener('click', async function(e) {
+
+            e.preventDefault();
+
+            const token = localStorage.getItem('token');
+
+            try {
+
+                await fetch('/api/logout', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+
+                });
+
+            } catch(error) {
+
+                console.error(error);
+
+            }
+
+            localStorage.removeItem('token');
+
+            window.location.href = '/login';
+
+        });
+
+</script>
     @stack('scripts')
+    <script>
+
+    const token = localStorage.getItem('token');
+
+    if(!token) {
+
+        window.location.href = '/login';
+
+    }
+
+</script>
 </body>
 </html>

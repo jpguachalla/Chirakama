@@ -111,39 +111,113 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // 1. Cargar Estadísticas Simuladas (Aquí usarías Fetch API real)
-        const loadStats = () => {
-            document.getElementById('stat-total-vehicles').textContent = '245';
-            document.getElementById('stat-revenue').textContent = '$1.2M';
-            document.getElementById('stat-transit').textContent = '38';
-            document.getElementById('stat-clients').textContent = '1,024';
-        };
+        const loadStats = async () => {
 
+    try {
+
+        const response = await fetch('/api/vehicles');
+
+        const data = await response.json();
+
+        const vehicles = data.vehicles;
+
+        document.getElementById('stat-total-vehicles')
+            .textContent = vehicles.length;
+
+        let revenue = 0;
+
+        vehicles.forEach(vehicle => {
+
+            revenue += Number(vehicle.price);
+
+        });
+
+        document.getElementById('stat-revenue')
+            .textContent = '$' + revenue.toLocaleString();
+
+        let transit = 0;
+
+        vehicles.forEach(vehicle => {
+
+            if(vehicle.stock > 0) {
+
+                transit++;
+
+            }
+
+        });
+
+        document.getElementById('stat-transit')
+            .textContent = transit;
+
+        document.getElementById('stat-clients')
+            .textContent = '1,024';
+
+    } catch(error) {
+
+        console.error(error);
+
+    }
+
+};
         // 2. Cargar Lista de Recientes
-        const loadRecentVehicles = () => {
-            const list = document.getElementById('recent-vehicles-list');
-            const vehicles = [
-                { brand: 'Toyota', model: 'Hilux', year: '2024', price: '$45,000', img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fd?w=100&h=100&fit=crop' },
-                { brand: 'BMW', model: 'X5', year: '2023', price: '$85,000', img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=100&h=100&fit=crop' },
-                { brand: 'Audi', model: 'Q8', year: '2024', price: '$92,000', img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=100&h=100&fit=crop' },
-                { brand: 'Ford', model: 'Raptor', year: '2023', price: '$78,000', img: 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=100&h=100&fit=crop' },
-            ];
+      const loadRecentVehicles = async () => {
 
-            let html = '';
-            vehicles.forEach(v => {
-                html += `
-                    <div class="list-group-item bg-transparent border-secondary d-flex align-items-center py-3">
-                        <img src="${v.img}" alt="${v.model}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                        <div class="flex-grow-1">
-                            <h6 class="mb-0 text-white">${v.brand} ${v.model}</h6>
-                            <small class="text-muted">${v.year}</small>
-                        </div>
-                        <span class="text-gold fw-bold">${v.price}</span>
+    try {
+
+        const response = await fetch('/api/vehicles');
+
+        const data = await response.json();
+
+        const vehicles = data.vehicles;
+
+        const list = document.getElementById('recent-vehicles-list');
+
+        let html = '';
+
+        vehicles.slice(0, 5).forEach(v => {
+
+            html += `
+
+                <div class="list-group-item bg-transparent border-secondary d-flex align-items-center py-3">
+
+                    <img 
+                        src="https://via.placeholder.com/50x50?text=Auto"
+                        class="rounded me-3"
+                        style="width:50px;height:50px;object-fit:cover;"
+                    >
+
+                    <div class="flex-grow-1">
+
+                        <h6 class="mb-0 text-white">
+                            ${v.brand} ${v.model}
+                        </h6>
+
+                        <small class="text-muted">
+                            ${v.year}
+                        </small>
+
                     </div>
-                `;
-            });
-            list.innerHTML = html;
-        };
 
+                    <span class="text-gold fw-bold">
+                        $${v.price}
+                    </span>
+
+                </div>
+
+            `;
+
+        });
+
+        list.innerHTML = html;
+
+    } catch(error) {
+
+        console.error(error);
+
+    }
+
+};
         // 3. Inicializar Gráfica con Chart.js
         const initChart = () => {
             const ctx = document.getElementById('importsChart').getContext('2d');

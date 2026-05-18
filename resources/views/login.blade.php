@@ -38,7 +38,13 @@
     </div>
 
     <script>
+const token = localStorage.getItem('token');
 
+if(token) {
+
+    window.location.href = '/';
+
+}
         document.getElementById('login-form')
             .addEventListener('submit', async function(e) {
 
